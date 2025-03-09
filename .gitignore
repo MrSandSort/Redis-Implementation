@@ -1,0 +1,13 @@
+# Node.js dependencies
+
+node_modules/
+package-lock.json
+
+
+# Environment variables & secrets
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.*
