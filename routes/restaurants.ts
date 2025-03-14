@@ -1,10 +1,13 @@
- import express,{type Request} from "express";
+ import express,{type Request, Response, NextFunction } from "express";
 import { Restaurant, RestaurantSchema } from "../Schemas/restaurants.schema";
 import { validate } from "../middleware/validate";
 import { successResponse } from "../utils/responses";
 import { initializeRedisClient } from "../utils/client";
-import { restaurantById } from "../utils/keys";
+import { restaurantById, reviewById, reviewDetailsById } from "../utils/keys";
 import { nanoid } from "nanoid";
+import { checkRestaurantExists } from "../middleware/checkRestaurantById";
+import { reviews, reviewSchema } from "../Schemas/review.schema";
+
 
  const router= express.Router()
 
@@ -25,7 +28,30 @@ import { nanoid } from "nanoid";
   
  })
 
- router.get('/:restaurantId', async(req:Request<{restaurantId:string}>, res, next)=>{
+ router.post('/:restaurantId/reviews', checkRestaurantExists, validate(reviewSchema), async(req:Request<{restaurantId:string}>,res:Response, next:NextFunction)=>{
+
+  const {restaurantId}= req.params
+  const data= req.body as reviews
+
+  try {
+   const client= await initializeRedisClient();
+   const reviewId= nanoid();
+   const reviewKey= reviewById(restaurantId);
+   const reviewDetailKey= reviewDetailsById(reviewId);
+   const hashData= {id:reviewId, ...data, timestamp:Date.now() ,restaurantId};
+   await Promise.all([
+    client.lPush(reviewKey, reviewId),
+    client.hSet(reviewDetailKey, hashData )
+   ])
+   successResponse(res, hashData, 'Review Details Added Successfully')
+ 
+  } catch (error) {
+    next(error)
+  }
+
+ })
+
+ router.get('/:restaurantId', checkRestaurantExists, async(req:Request<{restaurantId:string}>, res, next)=>{
    const {restaurantId}= req.params
 
    try {
