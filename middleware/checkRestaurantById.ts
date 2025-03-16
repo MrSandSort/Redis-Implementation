@@ -3,7 +3,7 @@ import { errorResponse } from "../utils/responses";
 import { initializeRedisClient } from "../utils/client";
 import { restaurantById } from "../utils/keys";
 
-export const checkRestaurantExists= async(req:Request, res:Response, next:NextFunction) => 
+export const checkRestaurantExists= async(req:Request<{restaurantId:string}>, res:Response, next:NextFunction) => 
 {
     const {restaurantId}= req.params;
     if(!restaurantId){

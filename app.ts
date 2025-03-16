@@ -6,7 +6,7 @@ import { errorHandler } from "./middleware/errorHandler";
 
 dotenv.config();
 
-const PORT= process.env.PORT || 4000
+const PORT= 4000
 
 const app:Application= express();
 app.use(express.json())
@@ -17,4 +17,4 @@ app.use("/cuisines", cuisinesRouter)
 app.use(errorHandler)
  
 
-app.listen(PORT, ()=>{console.log(`Server started at port ${PORT}`)}).on("error",error=>{throw new Error(error.message)})
+app.listen(PORT, ()=>{console.log(`Server started at port ${PORT}`)})
